@@ -1,0 +1,45 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente (Segurança)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Builds e arquivos gerados pelo TS
+dist
+build
+
+# Cliente do Prisma gerado customizado
+generated/
+
+# Compilação e builds
+dist/
+build/
+*.tsbuildinfo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Configurações do VS Code que são só suas (opcional)
+.vscode
+
+# IDEs e Editores
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Arquivos do Sistema Operacional
+.DS_Store
+Thumbs.db
+Thumbs.db
