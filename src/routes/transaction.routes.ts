@@ -2,8 +2,9 @@ import { FastifyInstance } from "fastify";
 import zodToJsonSchema from "zod-to-json-schema";
 import createTransaction from "../controllers/transactions/createTransaction.controller";
 import getTransactions from "../controllers/transactions/getTransactions.controller";
-import { createTransactionSchema, getTransactionsSchema, getTransactionsSummarySchema } from "../schemas/transaction.schema";
 import { getTransactionsSummary } from "../controllers/transactions/getTransactionsSummary.controller";
+import { createTransactionSchema, deleteTransactionSchema, getTransactionsSchema, getTransactionsSummarySchema } from "../schemas/transaction.schema";
+import { deleteTransaction } from "../controllers/transactions/deleteTransaction.controller";
 
 
 
@@ -39,6 +40,14 @@ const transactionRoutes = async (fastify: FastifyInstance): Promise<void> => {
     handler: getTransactionsSummary
   })
 
+  fastify.route({
+    method: "DELETE",
+    url: "/:id",
+    schema: {
+      params: zodToJsonSchema(deleteTransactionSchema)
+    },
+    handler: deleteTransaction
+  })
 }
 
 
