@@ -1,4 +1,5 @@
 import { TransactionType } from "../../generated/client";
+import { CategorySummary } from "./category.types";
 
 
 export interface TransactionFilter {
@@ -9,4 +10,11 @@ export interface TransactionFilter {
   },
   type?: TransactionType;
   categoryId?: string;
+}
+
+export interface TransactionSummary {
+  totalExpenses: number;
+  totalIncomes: number;
+  balance: number;
+  expensesByCategory: CategorySummary[]
 }
