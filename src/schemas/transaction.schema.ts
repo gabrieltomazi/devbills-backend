@@ -12,3 +12,16 @@ export const createTransactionSchema = z.object({
     invalid_type_error: "Tipo não existente!"
   })
 })
+
+export type CreateTransactionBody = z.infer<typeof createTransactionSchema>
+
+export const getTransactionsSchema = z.object({
+  month: z.string().optional(),
+  year: z.string().optional(),
+  type: z.nativeEnum(TransactionType, {
+    invalid_type_error: "Tipo não existente!"
+  }).optional(),
+  categoryId: z.string().uuid("Categoria inválida").optional()
+})
+
+export type GetTransactionsQuery = z.infer<typeof getTransactionsSchema>
