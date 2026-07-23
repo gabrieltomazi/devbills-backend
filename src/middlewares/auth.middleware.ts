@@ -29,9 +29,13 @@ export const authMiddleware = async (
     const decodedToken = await getAuth().verifyIdToken(token)
     req.userId = decodedToken.uid
     console.log(decodedToken)
-  } catch (error) {
-    req.log.error("Erro ao verificar token" + error)
-    rep.status(401).send({ error: "Token de autorização inválido ou expirado" })
+  } catch (error: any) {
+    req.log.error(error, "Erro detalhado ao verificar token")
+    rep.status(401).send({
+      error: "Token de autorização inválido ou expirado",
+      message: error.message,
+      code: error.code
+    })
     return
   }
 
