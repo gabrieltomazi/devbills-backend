@@ -1,14 +1,17 @@
 import { FastifyInstance } from "fastify";
 import zodToJsonSchema from "zod-to-json-schema";
 import createTransaction from "../controllers/transactions/createTransaction.controller";
+import { deleteTransaction } from "../controllers/transactions/deleteTransaction.controller";
 import getTransactions from "../controllers/transactions/getTransactions.controller";
 import { getTransactionsSummary } from "../controllers/transactions/getTransactionsSummary.controller";
+import { authMiddleware } from "../middlewares/auth.middleware";
 import { createTransactionSchema, deleteTransactionSchema, getTransactionsSchema, getTransactionsSummarySchema } from "../schemas/transaction.schema";
-import { deleteTransaction } from "../controllers/transactions/deleteTransaction.controller";
 
 
 
 const transactionRoutes = async (fastify: FastifyInstance): Promise<void> => {
+
+  fastify.addHook('preHandler', authMiddleware)
 
   // Criação de transaction
   fastify.route({

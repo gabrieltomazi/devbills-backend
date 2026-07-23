@@ -9,7 +9,7 @@ dayjs.extend(utc)
 
 const getTransactions = async (req: FastifyRequest<{ Querystring: GetTransactionsQuery }>, rep: FastifyReply): Promise<void> => {
 
-  const userId = "userid123"
+  const userId = req.userId
 
   if (!userId) {
     return rep.status(401).send({ error: "Usuário não autenticado!" })

@@ -6,7 +6,7 @@ import prisma from "../../config/prisma";
 
 export const deleteTransaction = async (req: FastifyRequest<{ Params: DeleteTransactionParams }>, rep: FastifyReply): Promise<void> => {
 
-  const userId = "userid123"
+  const userId = req.userId
   const { id } = req.params
 
   if (!userId) {

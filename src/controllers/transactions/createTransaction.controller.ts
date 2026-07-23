@@ -5,7 +5,7 @@ import prisma from "../../config/prisma"
 
 const createTransaction = async (req: FastifyRequest<{ Body: CreateTransactionBody }>, rep: FastifyReply): Promise<void> => {
 
-  const userId = "userid123"
+  const userId = req.userId
 
   if (!userId) {
     return rep.status(401).send({ error: "Usuário não autenticado!" })

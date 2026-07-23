@@ -12,7 +12,7 @@ dayjs.extend(utc)
 
 export const getTransactionsSummary = async (req: FastifyRequest<{ Querystring: GetTransactionsSummaryQuery }>, rep: FastifyReply): Promise<void> => {
 
-  const userId = "userid123"
+  const userId = req.userId
 
   if (!userId) {
     return rep.status(401).send({ error: "Usuário não autenticado!" })
@@ -75,8 +75,6 @@ export const getTransactionsSummary = async (req: FastifyRequest<{ Querystring: 
 
       }
     }
-
-    console.log(Array.from(groupedExpenses.values()));
 
     const summary: TransactionSummary = {
       totalExpenses,
