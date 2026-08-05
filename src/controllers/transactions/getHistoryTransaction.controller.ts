@@ -51,7 +51,7 @@ export const getHistoryTransactions = async (
       return {
         name: date.format("MMM/YYYY"),
         income: 0,
-        expense: 0
+        expenses: 0
       }
 
     })
@@ -64,7 +64,7 @@ export const getHistoryTransactions = async (
         if (transaction.type === "income") {
           monthData.income += transaction.amount;
         } else {
-          monthData.expense += transaction.amount;
+          monthData.expenses += transaction.amount;
 
         }
 
