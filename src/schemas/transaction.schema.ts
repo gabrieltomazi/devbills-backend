@@ -35,13 +35,20 @@ export type GetTransactionsQuery = z.infer<typeof getTransactionsSchema>
 
 // Schema do zod de transactionsSummary
 export const getTransactionsSummarySchema = z.object({
-  month: z.string(),
-  year: z.string()
+  month: z.string({ message: "O mês é obrigatório" }),
+  year: z.string({ message: "O ano é obrigatório" })
 })
 
 // Type para os queryParams de transactionsSummary
 export type GetTransactionsSummaryQuery = z.infer<typeof getTransactionsSummarySchema>
 
+export const getHistorySchema = z.object({
+  month: z.coerce.number().min(1).max(12),
+  months: z.coerce.number().min(1).max(12).optional(),
+  year: z.coerce.number().min(2000).max(2100),
+})
+
+export type GetHistoryQuery = z.infer<typeof getHistorySchema>
 
 export const deleteTransactionSchema = z.object({
   id: z.string().uuid("Categoria inválida")
