@@ -5,10 +5,10 @@
 - [X] Armazenar transações por usuário
 - [X] Armazenar categorias globais
 - [X] Proteger rotas com autenticação
-- [ ] Calcular e retornar:
+- [X] Calcular e retornar:
     - [X] Resumo financeiro
     - [X] Despesas por categoria
-    - [ ] Histórico mensal de receitas e despesas
+    - [X] Histórico mensal de receitas e despesas
 
 ### 🔧 Requisitos Técnicos
 
