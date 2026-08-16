@@ -11,7 +11,7 @@ const app: FastifyInstance = Fastify({
 });
 
 app.register(cors, {
-  origin: true,
+  origin: env.NODE_ENV === "prod" ? "https://devbills-frontend-lqx3.vercel.app/" : true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
 })
 
