@@ -28,7 +28,6 @@ export const authMiddleware = async (
   try {
     const decodedToken = await getAuth().verifyIdToken(token)
     req.userId = decodedToken.uid
-    console.log(decodedToken)
   } catch (error: any) {
     req.log.error(error, "Erro detalhado ao verificar token")
     rep.status(401).send({
