@@ -6,6 +6,11 @@ O projeto segue os princípios da **Arquitetura em Camadas (Controller-Service-R
 
 ---
 
+> [!AVISO]
+> **Nota sobre a Hospedagem (Render):** Esta API está hospedada no plano gratuito do **Render**. Consequentemente, após alguns minutos de inatividade, a aplicação entra em modo de repouso. A primeira requisição feita à API pode demorar cerca de **50 a 60 segundos** para responder (tempo necessário para o servidor "acordar"). As chamadas seguintes serão rápidas.
+
+---
+
 ## ✨ Funcionalidades Principais
 
 *   **🛡️ Autenticação com Firebase Admin SDK**: Validação e decodificação do Token JWT enviado pelo frontend nas rotas protegidas.
