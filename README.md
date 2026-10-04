@@ -2,8 +2,6 @@
 
 O **DevBills** é uma plataforma moderna e intuitiva de controle financeiro pessoal. Este repositório contém o código-fonte da **API REST (backend)** da aplicação, desenvolvida com foco em performance, tipagem estática e segurança.
 
-O projeto segue os princípios da **Arquitetura em Camadas (Controller-Service-Repository)**, garantindo separação de responsabilidades, facilidade de manutenção e validação rigorosa de dados.
-
 ---
 
 > [!AVISO]
@@ -11,13 +9,48 @@ O projeto segue os princípios da **Arquitetura em Camadas (Controller-Service-R
 
 ---
 
+## 🏛️ Arquitetura da Aplicação
+
+### Padrão Arquitetural: MVC 
+
+O backend adota o padrão **MVC (Model-View-Controller) adaptado para APIs REST** (também categorizado como uma **Arquitetura em Camadas Simplificada / Route-Controller-Data Pattern**), com separação clara de responsabilidades:
+
+* **Model (Modelo de Dados):** Centralizado no [Prisma ORM](prisma/schema.prisma), que gerencia as entidades, tipos e o acesso ao banco PostgreSQL.
+* **View (Visualização/Apresentação):** Em APIs REST não há templates HTML; a "View" é representada pelos payloads JSON serializados e códigos de status HTTP retornados.
+* **Controller (Controladores):** Localizados em `src/controllers/`, recebem as requisições Fastify, orquestram a validação dos dados via Zod e interagem diretamente com o Prisma.
+* **Middlewares & Validações:** `src/middlewares/` para interceptações de segurança (ex: autenticação Firebase) e `src/schemas/` para validação e tipagem estrita com Zod (DTOs).
+
+```mermaid
+graph TD
+    Client([Cliente / Frontend]) --> Routes["1. Camada de Rotas (Fastify Routes)"]
+    Routes --> Middleware["2. Interceptor de Segurança (auth.middleware)"]
+    Middleware --> Controller["3. Camada de Controle (Controllers)"]
+    Controller --> Schema["4. Validação de Entrada (Zod Schemas)"]
+    Controller --> Prisma["5. Acesso a Dados & ORM (Prisma Client )"]
+    Prisma --> Database[(PostgreSQL Database)]
+
+    Boot([Inicialização / Server Boot]) -.-> ServiceSeed["Serviço de Inicialização / globalCategories.service"]
+    ServiceSeed --> Prisma
+```
+
+### Comparativo: MVC vs. Arquitetura em Camadas Tradicional
+
+| Aspecto | Arquitetura em Camadas (3-Tier / Clean) | Modelo Adotado no Projeto (MVC API) |
+| :--- | :--- | :--- |
+| **Fluxo** | Controller $\rightarrow$ Service $\rightarrow$ Repository $\rightarrow$ Database | Route $\rightarrow$ Controller $\rightarrow$ Prisma (ORM/Model) $\rightarrow$ Database |
+| **Acesso a Dados** | Repositórios dedicados por entidade | **Prisma Client** diretamente como camada de abstração de dados e *Query Builder* tipo-seguro. |
+| **Regras de Negócio** | Camada de *Services / UseCases* isolada | Modularizada em **Controllers autocontidos e especializados** (`src/controllers/transactions/`). |
+| **Papel de `src/services/`** | Intermediário de todas as operações de CRUD | **Serviços de Infraestrutura e Carga Inicial (Seed/Setup)**, como a verificação e população de categorias globais no boot. |
+
+---
+
 ## ✨ Funcionalidades Principais
 
-*   **🛡️ Autenticação com Firebase Admin SDK**: Validação e decodificação do Token JWT enviado pelo frontend nas rotas protegidas.
-*   **📐 Validação de Dados com Zod**: Validação automática e segura dos payloads e parâmetros das requisições via integração `fastify-type-provider-zod`.
-*   **🗄️ Integração com Prisma ORM e PostgreSQL**: Modelagem, relacionamento e acesso rápido e robusto ao banco de dados relacional.
-*   **📊 Lógica de Negócios e Agregações**: Agrupamento automático de despesas por categoria, cálculo de balanço mensal e histórico financeiro.
-*   **🌱 Inicialização Automática**: Criação automática de categorias padrão (alimentação, lazer, salário, etc.) ao inicializar a aplicação.
+*   **🛡️ Autenticação com Firebase Admin SDK**: Validação e decodificação do Token JWT enviado pelo frontend nas rotas protegidas via `auth.middleware.ts`.
+*   **📐 Validação de Dados com Zod**: Validação estrita e tipada de parâmetros de rota, query strings e bodies de requisição.
+*   **🗄️ Integração com Prisma ORM e PostgreSQL**: Modelagem relacional entre Usuários, Categorias e Transações com integridade referencial.
+*   **📊 Lógica de Negócios e Agregações**: Agrupamento dinâmico de despesas por categoria, cálculo de balanço mensal e histórico financeiro.
+*   **🌱 Inicialização Automática**: Criação automática de categorias padrão (alimentação, transporte, moradia, salário, etc.) no boot da aplicação.
 
 ---
 
@@ -37,19 +70,35 @@ A API foi desenvolvida utilizando as seguintes tecnologias e bibliotecas:
 
 ## 📂 Estrutura de Pastas
 
-Abaixo está a organização de pastas dentro do diretório `src/`:
-
 ```text
 src/
-├── config/         # Arquivos de inicialização (Prisma, Firebase Admin)
-├── controllers/    # Camada HTTP que lida com requisições e respostas
-├── middlewares/    # Interceptadores de rotas (ex: middleware de autenticação)
-├── routes/         # Definição e agrupamento dos endpoints da API
-├── schemas/        # Schemas do Zod para validação e tipagem
-├── services/       # Camada de lógica de negócio isolada do protocolo HTTP
-├── types/          # Declaração global de tipos do TypeScript
-├── app.ts          # Inicialização e registro de plugins do Fastify
-└── server.ts       # Inicialização do servidor web na porta de escuta
+├── config/                 # Configurações de ambiente, Prisma e Firebase Admin
+│   ├── env.ts              # Validação e tipagem de variáveis de ambiente
+│   ├── firebase.ts         # Inicialização do Firebase Admin SDK
+│   └── prisma.ts           # Instância única e tipada do Prisma Client
+├── controllers/            # Controladores que recebem a requisição, validam e chamam o Prisma
+│   ├── category.controller.ts # Listagem de categorias
+│   └── transactions/       # Controladores dedicados para cada ação de transação
+│       ├── createTransaction.controller.ts
+│       ├── deleteTransaction.controller.ts
+│       ├── getHistoryTransaction.controller.ts
+│       ├── getTransactions.controller.ts
+│       └── getTransactionsSummary.controller.ts
+├── middlewares/            # Interceptadores de requisições
+│   └── auth.middleware.ts  # Verificação do Bearer Token JWT via Firebase Admin
+├── routes/                 # Definição e registro de rotas do Fastify
+│   ├── category.routes.ts  # Endpoints de categorias
+│   ├── transaction.routes.ts # Endpoints de transações financeiras
+│   └── index.ts            # Agrupador central de rotas da API
+├── schemas/                # Esquemas de validação de entrada com Zod
+│   └── transaction.schema.ts
+├── services/               # Serviços de carga inicial e setup do sistema
+│   └── globalCategories.service.ts # Seed e verificação de categorias globais
+├── types/                  # Definição de tipos TypeScript compartilhados
+│   ├── category.types.ts
+│   └── transaction.types.ts
+├── app.ts                  # Configuração de plugins, middlewares e rotas do Fastify
+└── server.ts               # Inicialização da aplicação e escuta na porta HTTP
 ```
 
 ---
@@ -86,7 +135,7 @@ Certifique-se de ter instalado em sua máquina:
     DATABASE_URL="postgresql://usuario:senha@localhost:5432/devbills?schema=public"
     NODE_ENV="dev"
     
-    # Credenciais do Firebase Admin (formato JSON compactado ou chaves individuais)
+    # Credenciais do Firebase Admin
     FIREBASE_PROJECT_ID="seu-projeto-id"
     FIREBASE_CLIENT_EMAIL="seu-email-cliente-firebase"
     FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nsua-chave-privada\n-----END PRIVATE KEY-----\n"
@@ -110,11 +159,11 @@ Certifique-se de ter instalado em sua máquina:
 
 Todas as rotas de transação requerem o cabeçalho `Authorization: Bearer <ID_TOKEN_DO_FIREBASE>`.
 
-| Método | Rota | Descrição |
-| :--- | :--- | :--- |
-| **POST** | `/api/transaction` | Cria uma nova transação (receita ou despesa) |
-| **GET** | `/api/transactions` | Lista transações filtradas por mês, ano e categoria |
-| **GET** | `/api/transactions/summary` | Retorna o balanço, total de despesas, receitas e gastos por categoria |
-| **GET** | `/api/transactions/history` | Retorna o histórico consolidado de receitas/despesas de meses anteriores |
-| **DELETE** | `/api/transactions/:id` | Remove uma transação específica |
-| **GET** | `/api/categories` | Lista as categorias cadastradas |
+| Método | Rota | Autenticação | Descrição |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/api/categories` | Pública / Opcional | Lista todas as categorias cadastradas |
+| **POST** | `/api/transaction` | 🔒 Bearer Token | Cria uma nova transação (receita ou despesa) |
+| **GET** | `/api/transactions` | 🔒 Bearer Token | Lista transações filtradas por mês, ano, tipo e categoria |
+| **GET** | `/api/transactions/summary` | 🔒 Bearer Token | Retorna o balanço, total de despesas, receitas e gastos por categoria |
+| **GET** | `/api/transactions/history` | 🔒 Bearer Token | Retorna o histórico consolidado de receitas/despesas de meses anteriores |
+| **DELETE** | `/api/transactions/:id` | 🔒 Bearer Token | Remove uma transação específica por ID |
